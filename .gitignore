@@ -1,0 +1,5 @@
+Manifest.toml
+LocalPreferences.toml
+.vscode
+*.jld2
+mpi_simulator/compiled_simulator
