@@ -11,7 +11,6 @@ JutulDarcy = "82210473-ab04-4dce-b31b-11573c4f8e0a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 PartitionedArrays = "5a9dfac6-5c52-46f7-8278-5e2210713be9"
-TimerOutputs = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 
 [extras]
 CPUSummary = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"
