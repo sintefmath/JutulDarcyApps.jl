@@ -110,9 +110,9 @@ module JutulDarcyMPI
         add_arg_group(s, "output and printing");
         @add_arg_table s begin
             "--info-level"
-            help = "level out output. Set to -1 for no output."
-            arg_type = Int
-            default = 1
+                help = "level out output. Set to -1 for no output."
+                arg_type = Int
+                default = 1
             "--verbose"
                 help = "extra output from the app itself and the parser. For simulation convergence reporting, see --info-level"
                 arg_type = Bool
@@ -120,6 +120,14 @@ module JutulDarcyMPI
             "--output-path"
                 help = "path where output results are to be written. A random temporary folder will be created if not provided."
                 default = ""
+        end
+
+        add_arg_group(s, "numerical scheme");
+        @add_arg_table s begin
+            "--method"
+                help = "type of method to use: Can be newton or nldd"
+                arg_type = String
+                default = "newton"
         end
         return parse_args(s)
     end
@@ -157,6 +165,7 @@ module JutulDarcyMPI
         else
             w = :simple
         end
+
         BLAS.set_num_threads(1)
 
         pth = args["filename"]
@@ -191,6 +200,7 @@ module JutulDarcyMPI
         end
         result = simulate_reservoir(case,
             mode = :mpi,
+            method = Symbol(lowercase(args["method"])),
             output_path = outpth,
             info_level = args["info_level"],
             max_timestep_cuts = args["max_timestep_cuts"],
