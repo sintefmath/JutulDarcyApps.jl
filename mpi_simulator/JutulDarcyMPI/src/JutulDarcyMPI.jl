@@ -215,6 +215,11 @@ module JutulDarcyMPI
                 default = true
             "--nldd-mpi-sync-after-solve"
                 action = :store_true
+            "--nldd-subdomain-precond"
+                help = "preconditioner to use for linear solver in NLDD subdomains"
+                arg_type = Symbol
+                default = :cpr
+                range_tester = x -> x in (:cpr, :ilu0, :jacobi, :spai0)
         end
 
         return parse_args(s)
@@ -286,6 +291,8 @@ module JutulDarcyMPI
             extra_arg[:solve_tol_first_newton] = args["nldd_solve_tol_first_newton"]
             extra_arg[:subdomain_failure_cuts] = args["nldd_subdomain_failure_cuts"]
             extra_arg[:always_solve_wells] = args["nldd_always_solve_wells"]
+            extra_arg[:subdomain_precond] = args["nldd_subdomain_precond"]
+
             target_its = 3
             max_its = 10
         else
@@ -302,7 +309,7 @@ module JutulDarcyMPI
         BLAS.set_num_threads(1)
 
         pth = args["filename"]
-        @assert isfile(pth) "Path $pth must be a valid .mat or .data file"
+        @assert isfile(pth) "Input file $pth must exist."
 
         basepath, ext = splitext(pth)
         folder_pth, name = splitdir(basepath)
@@ -312,11 +319,11 @@ module JutulDarcyMPI
             t_setup = @elapsed case, = setup_case_from_mrst(pth, backend = args["backend"], wells = w, split_wells = true)
             verbose_print("IO", "Case $name set up in $t_setup s.")
         else
-            @assert ext == ".data"
+            @assert ext == ".data" "File must have either extension .mat (for MRST export) or .data (for industry standard input format). Was: $ext"
             case = JutulDarcy.setup_case_from_data_file(pth, 
                 backend = args["backend"],
                 split_wells = true,
-                parse_arg = (verbose = args["verbose"],)
+                parse_arg = (verbose = args["verbose"] && is_main, silent = !is_main)
             )
         end
         outpth = args["output_path"]
