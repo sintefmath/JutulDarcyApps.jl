@@ -13,7 +13,7 @@ MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 PartitionedArrays = "5a9dfac6-5c52-46f7-8278-5e2210713be9"
 
 [compat]
-JutulDarcy = "0.2.19"
+JutulDarcy = "0.2.23"
 
 [extras]
 CPUSummary = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"
