@@ -213,9 +213,9 @@ module JutulDarcyMPI
                 help = "use newton for first iteration when solve tols in changes are enabled"
                 arg_type = Bool
                 default = true
+            "--nldd-mpi-sync-after-solve"
+                action = :store_true
         end
-        # "--nldd-mpi-sync-after-solve"
-        #     action = :store_true
 
         return parse_args(s)
     end
@@ -268,9 +268,9 @@ module JutulDarcyMPI
             end
             extra_arg[:nldd_arg] = Dict(
                 :cells_per_block => cells_per_block,
-                :no_blocks => no_blocks
+                :no_blocks => no_blocks,
+                :mpi_sync_after_solve => args["nldd_mpi_sync_after_solve"]
             )
-            # :mpi_sync_after_solve => args["nldd_mpi_sync_after_solve"],
             extra_arg[:solve_tol_pressure] = to_nothing_or_positive(args["nldd_solve_tol_pressure"])
             extra_arg[:solve_tol_pressure_mean] = to_nothing_or_positive(args["nldd_solve_tol_pressure_mean"])
             extra_arg[:solve_tol_saturations] = to_nothing_or_positive(args["nldd_solve_tol_saturations"])
