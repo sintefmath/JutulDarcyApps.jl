@@ -371,11 +371,7 @@ module JutulDarcyMPI
             kwarg...,
             extra_arg...
         )
-        if MPI.Comm_size(comm) > 1
-            # Skip this for single process to avoid breaking interactive
-            # development by calling finalize.
-            MPI.Finalize()
-        end
+        MPI.Barrier(comm)
         return 0 # if things finished successfully
     end
 end # module
