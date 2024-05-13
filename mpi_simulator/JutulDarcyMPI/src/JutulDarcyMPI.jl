@@ -354,12 +354,16 @@ module JutulDarcyMPI
         if args["presolve_one_step"]
             subcase = case[1]
             subcase.dt[1] *= 0.01
-            result = simulate_reservoir(subcase;
-            output_path = mktempdir(),
-            info_level = -1,
-            kwarg...,
-            extra_arg...
-        )
+            try
+                result = simulate_reservoir(subcase;
+                output_path = mktempdir(),
+                info_level = -1,
+                kwarg...,
+                extra_arg...
+            )
+            catch
+                # No need to do anything, this is just for accurate timings and could fail.
+            end
         end
         result = simulate_reservoir(case;
             output_path = outpth,
