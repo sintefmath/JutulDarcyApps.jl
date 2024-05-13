@@ -355,6 +355,7 @@ module JutulDarcyMPI
             subcase = case[1]
             subcase.dt[1] *= 0.01
             result = simulate_reservoir(subcase;
+            output_path = mktempdir(),
             info_level = -1,
             kwarg...,
             extra_arg...
