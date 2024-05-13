@@ -11,6 +11,11 @@ for k in ["spe1", "egg", "spe9", "spe3"]
     push!(ARGS, joinpath(basepath, "mrst", "$k.mat"))
     if isfile(ARGS[1])
         JutulDarcyMPI.julia_main()
+        if k == "egg"
+            push!(ARGS, "--method=nldd")
+            push!(ARGS, "--nldd-solve-tol-mobility=0.01")
+            JutulDarcyMPI.julia_main()
+        end
     end
 end
 

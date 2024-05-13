@@ -153,8 +153,6 @@ module JutulDarcyMPI
                 help = "number of cells per subdomain to use in NLDD (not compatible with --nldd-number-of-subdomains)"
                 arg_type = Int
                 default = -1
-            # "--nldd-mpi-sync-after-solve"
-            #     action = :store_true
             "--nldd-solve-tol-pressure"
                 help = "tolerance for maximum value of change in pressure before a local subdomain is solved"
                 arg_type = Float64
@@ -216,6 +214,9 @@ module JutulDarcyMPI
                 arg_type = Bool
                 default = true
         end
+        # "--nldd-mpi-sync-after-solve"
+        #     action = :store_true
+
         return parse_args(s)
     end
 
