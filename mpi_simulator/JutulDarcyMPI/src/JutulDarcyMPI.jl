@@ -422,7 +422,10 @@ module JutulDarcyMPI
     https://github.com/sintefmath/JutulDarcy.jl                                              ░░██████
                                                                                               ░░░░░░
 "
-        print(txt)
+        wdth = displaysize(stdout)[2]
+        if wdth >= 104
+            print(txt)
+        end
         jver = pkgversion(Jutul)
         jdver = pkgversion(JutulDarcy)
         gver = pkgversion(JutulDarcy.GeoEnergyIO)
