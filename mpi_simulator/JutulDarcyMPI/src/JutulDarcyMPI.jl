@@ -131,6 +131,9 @@ module JutulDarcyMPI
             "--verbose"
                 help = "extra output from the app itself and the parser. For simulation convergence reporting, see --info-level"
                 action = :store_true
+            "--no-header"
+                help = "do not print ASCII header with version numbers and URL"
+                action = :store_true
             "--output-path"
                 help = "path where output results are to be written. A random temporary folder will be created if not provided."
                 arg_type = String
@@ -245,8 +248,10 @@ module JutulDarcyMPI
                 Jutul.jutul_message(arg...; kwarg...)
             end
         end
-        if process_is_verbose
+        if rank == 0 && !args["no_header"]
             print_big_logo()
+        end
+        if process_is_verbose
             verbose_print("JutulDarcyMPI", "Case is $(args["filename"]).\nSuccessfully parsed $(length(args)) keyword arguments:")
             print_arg = Jutul.OrderedCollections.OrderedDict()
             argkeys = sort(collect(keys(args)))
@@ -403,6 +408,7 @@ module JutulDarcyMPI
         return 0 # if things finished successfully
     end
     function print_big_logo()
+        println("")
         txt =
 "       █████             █████               ████  ██████████
       ░░███             ░░███               ░░███ ░░███░░░░███
@@ -413,10 +419,15 @@ module JutulDarcyMPI
 ░░████████   ░░████████  ░░█████  ░░████████ █████ ██████████  ░░████████ █████    ░░██████  ░░███████
  ░░░░░░░░     ░░░░░░░░    ░░░░░    ░░░░░░░░ ░░░░░ ░░░░░░░░░░    ░░░░░░░░ ░░░░░      ░░░░░░    ░░░░░███
                                                                                               ███ ░███
-                                                                                             ░░██████
+    https://github.com/sintefmath/JutulDarcy.jl                                              ░░██████
                                                                                               ░░░░░░
 "
         print(txt)
+        jver = pkgversion(Jutul)
+        jdver = pkgversion(JutulDarcy)
+        gver = pkgversion(JutulDarcy.GeoEnergyIO)
+        mcfver = pkgversion(JutulDarcy.MultiComponentFlash)
+        jutul_message("Packages", "JutulDarcy@$jdver, Jutul@$jver, GeoEnergyIO@$gver, MultiComponentFlash@$mcfver")
     end
 end # module
 # using MPI
