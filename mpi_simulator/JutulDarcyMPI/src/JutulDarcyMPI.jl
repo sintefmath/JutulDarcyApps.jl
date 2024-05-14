@@ -22,7 +22,7 @@ module JutulDarcyMPI
 
         @add_arg_table s begin
             "filename"
-            help = ".mat file exported from MRST to be simulated"
+            help = "Either a .mat file (exported from MRST) or a .data file (industry standard reservoir simulator input) to be simulated"
             required = true
         end
 
@@ -44,6 +44,10 @@ module JutulDarcyMPI
                 help = "always use multisegment wells (MRST input only)"
                 arg_type = Bool
                 default = false
+            "--number-of-steps"
+                help = "number of steps in input file to solve include in solution"
+                arg_type = Float64
+                default = Inf
         end
 
         add_arg_group(s, "nonlinear solver");
@@ -235,18 +239,25 @@ module JutulDarcyMPI
         if isnothing(args)
             return 0
         end
+        process_is_verbose = rank == 0 && args["verbose"]
         function verbose_print(arg...; kwarg...)
-            if rank == 0 && args["verbose"]
+            if process_is_verbose
                 Jutul.jutul_message(arg...; kwarg...)
             end
         end
-        verbose_print("Jutul", "Successfully parsed input arguments:")
-        i = 1
-        for (arg,val) in args
-            verbose_print("$i", "$arg =>  $val [$(typeof(val))]", color = :green)
-            i += 1
+        if process_is_verbose
+            print_big_logo()
+            verbose_print("JutulDarcyMPI", "Case is $(args["filename"]).\nSuccessfully parsed $(length(args)) keyword arguments:")
+            print_arg = Jutul.OrderedCollections.OrderedDict()
+            argkeys = sort(collect(keys(args)))
+            for k in argkeys
+                if k == "filename"
+                    continue
+                end
+                print_arg[k] = args[k]
+            end
+            Jutul.pretty_table(print_arg, crop = :none, show_header = false, alignment = :l)
         end
-
         if args["relaxation"]
             r = SimpleRelaxation()
         else
@@ -263,6 +274,7 @@ module JutulDarcyMPI
 
         method = Symbol(lowercase(args["method"]))
         if method == :nldd
+            verbose_print("Numerical scheme", "NLDD solver selected.")
             cells_per_block = args["nldd_number_of_subdomains"]
             if cells_per_block < 1
                 cells_per_block = missing
@@ -296,6 +308,7 @@ module JutulDarcyMPI
             target_its = 3
             max_its = 10
         else
+            verbose_print("Numerical scheme", "Newton solver selected.")
             target_its = 8
             max_its = 15
         end
@@ -314,17 +327,25 @@ module JutulDarcyMPI
         basepath, ext = splitext(pth)
         folder_pth, name = splitdir(basepath)
         ext = lowercase(ext)
-        if ext == ".mat"
-            verbose_print("IO", "Reading case from $pth...")
-            t_setup = @elapsed case, = setup_case_from_mrst(pth, backend = args["backend"], wells = w, split_wells = true)
-            verbose_print("IO", "Case $name set up in $t_setup s.")
+        verbose_print("IO", "Reading case from $pth...")
+        t_setup = @elapsed if ext == ".mat"
+            case, = setup_case_from_mrst(pth, backend = args["backend"], wells = w, split_wells = true)
         else
             @assert ext == ".data" "File must have either extension .mat (for MRST export) or .data (for industry standard input format). Was: $ext"
-            case = JutulDarcy.setup_case_from_data_file(pth, 
+            case = JutulDarcy.setup_case_from_data_file(pth,
                 backend = args["backend"],
                 split_wells = true,
                 parse_arg = (verbose = args["verbose"] && is_main, silent = !is_main)
             )
+        end
+        verbose_print("IO", "Case $name set up in $(Jutul.autoformat_time(t_setup)).")
+        nstep = args["number_of_steps"]
+        nstep_in_case = length(case.dt)
+        if nstep < nstep_in_case && nstep > 0
+            nstep = Int(nstep)
+            verbose_print("IO", "Limiting case to $nstep out of $nstep_in_case steps (--number-of-steps=$nstep).")
+            nstep = min(nstep_in_case, nstep)
+            case = case[nstep]
         end
         outpth = args["output_path"]
         if outpth == ""
@@ -380,6 +401,22 @@ module JutulDarcyMPI
         )
         MPI.Barrier(comm)
         return 0 # if things finished successfully
+    end
+    function print_big_logo()
+        txt =
+"       █████             █████               ████  ██████████
+      ░░███             ░░███               ░░███ ░░███░░░░███
+       ░███  █████ ████ ███████   █████ ████ ░███  ░███   ░░███  ██████   ████████   ██████  █████ ████
+       ░███ ░░███ ░███ ░░░███░   ░░███ ░███  ░███  ░███    ░███ ░░░░░███ ░░███░░███ ███░░███░░███ ░███
+       ░███  ░███ ░███   ░███     ░███ ░███  ░███  ░███    ░███  ███████  ░███ ░░░ ░███ ░░░  ░███ ░███
+ ███   ░███  ░███ ░███   ░███ ███ ░███ ░███  ░███  ░███    ███  ███░░███  ░███     ░███  ███ ░███ ░███
+░░████████   ░░████████  ░░█████  ░░████████ █████ ██████████  ░░████████ █████    ░░██████  ░░███████
+ ░░░░░░░░     ░░░░░░░░    ░░░░░    ░░░░░░░░ ░░░░░ ░░░░░░░░░░    ░░░░░░░░ ░░░░░      ░░░░░░    ░░░░░███
+                                                                                              ███ ░███
+                                                                                             ░░██████
+                                                                                              ░░░░░░
+"
+        print(txt)
     end
 end # module
 # using MPI
