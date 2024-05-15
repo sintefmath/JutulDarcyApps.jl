@@ -48,6 +48,10 @@ module JutulDarcyMPI
                 help = "number of steps in input file to solve include in solution"
                 arg_type = Float64
                 default = Inf
+            "--can-shut-wells"
+                help = "wells can be shut by solver"
+                arg_type = Bool
+                default = true
         end
 
         add_arg_group(s, "nonlinear solver");
@@ -343,6 +347,7 @@ module JutulDarcyMPI
             case = JutulDarcy.setup_case_from_data_file(pth,
                 backend = args["backend"],
                 split_wells = true,
+                can_shut_wells = args["can_shut_wells"],
                 parse_arg = (verbose = args["verbose"] && is_main, silent = !is_main)
             )
         end
