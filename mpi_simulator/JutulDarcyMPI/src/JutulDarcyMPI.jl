@@ -144,6 +144,9 @@ module JutulDarcyMPI
             "--presolve-one-step"
                 help = "solve one step before running the simulation to ensure everything is compiled. This is generally slower, but makes timings more accurate if a model contains uncompiled features."
                 action = :store_true
+            "--print-wells"
+                help = "print tables of well results after simulation is complete."
+                action = :store_true
         end
 
         add_arg_group(s, "numerical scheme");
@@ -398,12 +401,15 @@ module JutulDarcyMPI
                 # No need to do anything, this is just for accurate timings and could fail.
             end
         end
-        result = simulate_reservoir(case;
+        wells, states = simulate_reservoir(case;
             output_path = outpth,
             info_level = args["info_level"],
             kwarg...,
             extra_arg...
         )
+        if rank == 0 && args["print_wells"]
+            wells()
+        end
         MPI.Barrier(comm)
         return 0 # if things finished successfully
     end

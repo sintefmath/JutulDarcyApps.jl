@@ -31,6 +31,7 @@ if isfile(ARGS[1])
     push!(ARGS, "--number-of-steps=1")
     push!(ARGS, "--verbose")
     push!(ARGS, "--info-level=4")
+    push!(ARGS, "--print-wells")
     JutulDarcyMPI.julia_main()
 end
 
