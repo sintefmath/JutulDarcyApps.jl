@@ -287,11 +287,11 @@ module JutulDarcyMPI
         method = Symbol(lowercase(args["method"]))
         if method == :nldd
             verbose_print("Numerical scheme", "NLDD solver selected.")
-            cells_per_block = args["nldd_number_of_subdomains"]
+            cells_per_block = args["nldd_cells_per_subdomain"]
             if cells_per_block < 1
                 cells_per_block = missing
             end
-            no_blocks = args["nldd_cells_per_subdomain"]
+            no_blocks = args["nldd_number_of_subdomains"]
             if no_blocks < 1
                 no_blocks = missing
             end
