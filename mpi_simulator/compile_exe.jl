@@ -5,7 +5,7 @@ cd(@__DIR__)
     precompile_execution_file = "precompile_jutul_darcy_mpi.jl", # Precompilation script
     force = true,                                                # Delete existing files
     incremental=true,                                            # Add onto existing Julia sysimage
-    sysimage_build_args = Cmd(["-O2"])                           # Set Julia flags for precompilation
+    sysimage_build_args = Cmd(["-O3"])                           # Set Julia flags for precompilation
 )
 ##
 using MPI
