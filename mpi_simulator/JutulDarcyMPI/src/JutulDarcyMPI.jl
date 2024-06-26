@@ -83,7 +83,7 @@ module JutulDarcyMPI
             "--rtol"
                 help = "relative tolerance for linear solver"
                 arg_type = Float64
-                default = 1e-3
+                default = 5e-3
             "--backend"
                 help = "matrix format to use (either csr or csc)"
                 arg_type = Symbol
@@ -132,6 +132,10 @@ module JutulDarcyMPI
                 help = "level out output. Set to -1 for no output."
                 arg_type = Int
                 default = 1
+            "--report-level"
+                help = "amount of convergence/numerical statistics to store. Set to 1 for addditional output."
+                arg_type = Int
+                default = 0
             "--verbose"
                 help = "extra output from the app itself and the parser. For simulation convergence reporting, see --info-level"
                 action = :store_true
@@ -389,6 +393,7 @@ module JutulDarcyMPI
             :tol_dp_well => args["tol_dp_well"],
             :tol_factor_final_iteration => args["tol_factor_final_iteration"],
             :relaxation => r,
+            :report_level => args["report_level"],
             :output_substates => args["output_substates"],
             :failure_cuts_timestep => true,
         )
@@ -433,10 +438,11 @@ module JutulDarcyMPI
     https://github.com/sintefmath/JutulDarcy.jl                                              ░░██████
                                                                                               ░░░░░░
 "
-        wdth = displaysize(stdout)[2]
-        if wdth >= 104
-            print(txt)
-        end
+        # This doesn't get called properly when compiled? Always print.
+        # wdth = displaysize(stdout)[2]
+        # if wdth >= 104
+        print(txt)
+        # end
         jver = pkgversion(Jutul)
         jdver = pkgversion(JutulDarcy)
         gver = pkgversion(JutulDarcy.GeoEnergyIO)
