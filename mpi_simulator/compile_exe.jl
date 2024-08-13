@@ -1,11 +1,19 @@
 using PackageCompiler, Jutul, JutulDarcy
-# This can take a while.
 cd(@__DIR__)
+# Set CPU target to current CPU. Can potentially increase performance a bit, but
+# the binaries produced will not be relocatable to other variants of CPUs.
+specialize_to_current_cpu = false
+if specialize_to_current_cpu
+    build_args = Cmd(["-O3", "--cpu-target=$(Sys.CPU_NAME)"])
+else
+    build_args = Cmd(["-O3"])
+end
+# This can take a while.
 @time create_app("JutulDarcyMPI", "compiled_simulator",
     precompile_execution_file = "precompile_jutul_darcy_mpi.jl", # Precompilation script
     force = true,                                                # Delete existing files
     incremental=true,                                            # Add onto existing Julia sysimage
-    sysimage_build_args = Cmd(["-O3"])                           # Set Julia flags for precompilation
+    sysimage_build_args = args
 )
 ##
 using MPI

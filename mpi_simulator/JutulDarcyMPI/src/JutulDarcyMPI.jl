@@ -4,6 +4,7 @@ module JutulDarcyMPI
     using JutulDarcy
     using LinearAlgebra
     using ArgParse
+    using ThreadPinning
 
     function to_nothing_or_positive(x)
         if x < 0
@@ -240,6 +241,18 @@ module JutulDarcyMPI
                 range_tester = x -> x in (:cpr, :ilu0, :jacobi, :spai0)
         end
 
+        add_arg_group(s, "HPC configuration");
+        @add_arg_table s begin
+            "--pin-threads"
+                help = "Pin threads (cputhreads, cores, sockets, compact, numa, random, current, firstn, affinitymask)"
+                arg_type = Symbol
+                default = :none
+            "--blas-threads"
+                help = "Number of threads for BLAS"
+                arg_type = Int
+                default = 1
+        end
+
         return parse_args(s)
     end
 
@@ -274,6 +287,12 @@ module JutulDarcyMPI
             end
             Jutul.pretty_table(print_arg, crop = :none, show_header = false, alignment = :l)
         end
+        pt = args["pin_threads"]
+        if pt != :none
+            verbose_print("JutulDarcyMPI", "Pinning to threads: $pt")
+            mpi_pinthreads(pt)
+        end
+
         if args["relaxation"]
             r = SimpleRelaxation()
         else
@@ -335,7 +354,9 @@ module JutulDarcyMPI
             args["max_nonlinear_iterations"] = max_its
         end
 
-        BLAS.set_num_threads(1)
+        num_blas_threads = args["blas_threads"]
+        BLAS.set_num_threads(num_blas_threads)
+        ENV["OPENBLAS_NUM_THREADS"] = num_blas_threads
 
         pth = args["filename"]
         @assert isfile(pth) "Input file $pth must exist."

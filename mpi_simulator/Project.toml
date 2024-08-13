@@ -5,6 +5,7 @@ Jutul = "2b460a1a-8a2b-45b2-b125-b5c536396eb9"
 JutulDarcy = "82210473-ab04-4dce-b31b-11573c4f8e0a"
 JutulDarcyMPI = "e39d5e14-4b73-4b7e-aebd-fe20df4fee3d"
 MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
+MultiComponentFlash = "35e5bd01-9722-4017-9deb-64a5d32478ff"
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 PartitionedArrays = "5a9dfac6-5c52-46f7-8278-5e2210713be9"
 
