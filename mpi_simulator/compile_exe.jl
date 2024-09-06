@@ -13,7 +13,7 @@ end
     precompile_execution_file = "precompile_jutul_darcy_mpi.jl", # Precompilation script
     force = true,                                                # Delete existing files
     incremental=true,                                            # Add onto existing Julia sysimage
-    sysimage_build_args = args
+    sysimage_build_args = build_args
 )
 ##
 using MPI

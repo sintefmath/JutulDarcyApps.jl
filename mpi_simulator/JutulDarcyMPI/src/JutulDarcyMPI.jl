@@ -243,6 +243,10 @@ module JutulDarcyMPI
 
         add_arg_group(s, "HPC configuration");
         @add_arg_table s begin
+            "--partitioner-conn-type"
+                help = "Connection type for partitioned (trans, unit)"
+                arg_type = Symbol
+                default = :unit
             "--pin-threads"
                 help = "Pin threads (cputhreads, cores, sockets, compact, numa, random, current, firstn, affinitymask)"
                 arg_type = Symbol
@@ -399,9 +403,15 @@ module JutulDarcyMPI
         end
         kwarg = Dict(
             :mode => :mpi,
+            :parray_arg => (
+                conn = args["partitioner_conn_type"],
+            ),
             :method => method,
             :max_timestep_cuts => args["max_timestep_cuts"],
-            :linear_solver_arg => (rtol = args["rtol"], solver = args["linear_solver"]),
+            :linear_solver_arg => (
+                rtol = args["rtol"],
+                solver = args["linear_solver"]
+            ),
             :precond => args["precond"],
             :max_nonlinear_iterations => args["max_nonlinear_iterations"],
             :target_its => args["timesteps_target_iterations"],
