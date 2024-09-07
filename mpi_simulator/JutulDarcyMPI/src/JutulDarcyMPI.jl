@@ -472,8 +472,12 @@ module JutulDarcyMPI
         # This doesn't get called properly when compiled? Always print.
         # wdth = displaysize(stdout)[2]
         # if wdth >= 104
-        print(txt)
-        # end
+        if Sys.iswindows()
+            println("JutulDarcy.jl compiled simulator")
+            println("https://github.com/sintefmath/JutulDarcy.jl")
+        else
+            print(txt)
+        end
         jver = pkgversion(Jutul)
         jdver = pkgversion(JutulDarcy)
         gver = pkgversion(JutulDarcy.GeoEnergyIO)
