@@ -73,6 +73,22 @@ module JutulDarcyMPI
                 help = "maximum number of time-step cuts in a single report step solve"
                 arg_type = Int
                 default = 20
+            "--ds-max"
+                help = "maximum change in saturations during iteration"
+                arg_type = Float64
+                default = 0.2
+            "--dz-max"
+                help = "maximum change in compositions during iteration"
+                arg_type = Float64
+                default = 0.2
+            "--dp-max-abs"
+                help = "maximum absolute change in pressure during iteration (units of bar)"
+                arg_type = Float64
+                default = Inf
+            "--dp-max-rel"
+                help = "maximum change in relative pressure during iteration"
+                arg_type = Float64
+                default = 0.2
             "--presolve-wells"
                 help = "solve well system before each Newton iteration"
                 arg_type = Bool
@@ -370,12 +386,24 @@ module JutulDarcyMPI
         ext = lowercase(ext)
         verbose_print("IO", "Reading case from $pth...")
         t_setup = @elapsed if ext == ".mat"
-            case, = setup_case_from_mrst(pth, backend = args["backend"], wells = w, split_wells = true)
+            case, = setup_case_from_mrst(pth,
+                backend = args["backend"],
+                wells = w,
+                ds_max = args["ds_max"],
+                dz_max = args["dz_max"],
+                dp_max_abs = args["dp_max_abs"],
+                dp_max_rel = args["dp_max_rel"],
+                split_wells = true
+            )
         else
             @assert ext == ".data" "File must have either extension .mat (for MRST export) or .data (for industry standard input format). Was: $ext"
             case = JutulDarcy.setup_case_from_data_file(pth,
                 backend = args["backend"],
                 split_wells = true,
+                ds_max = args["ds_max"],
+                dz_max = args["dz_max"],
+                dp_max_abs = args["dp_max_abs"],
+                dp_max_rel = args["dp_max_rel"],
                 can_shut_wells = args["can_shut_wells"],
                 parse_arg = (verbose = args["verbose"] && is_main, silent = !is_main)
             )
